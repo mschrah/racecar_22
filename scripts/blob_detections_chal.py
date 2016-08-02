@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+ #!/usr/bin/env python
 	
 import cv2
 import rospy
@@ -40,6 +40,13 @@ class blob_detector:
 
 		#reference pictures
 		self.names = ["ari", "cat", "professor karaman", "racecar"]
+		self.desImages = {}
+		for name in self.names:
+			img1 = misc.imread(name+".jpg","L").astype(np.uint8)
+					    
+			# find the keypoints and descriptors with SIFT - reference
+			kp1, des1 = self.surf.detectAndCompute(img1,None)
+			self.desImages[name] = des1
 
 		#Initiate SIFT detector
 		self.surf = cv2.ORB()
@@ -108,7 +115,7 @@ class blob_detector:
 				#save the appropriate message/image data
 				Arr.append((Float64(area),cent,String(c)))
 				BoxArr.append(box)#order does not matter
-				'''
+				
 				if c == "pink":#send image to the correct place
 					#cropping picture
 					corn1 = box[0]
@@ -135,10 +142,13 @@ class blob_detector:
 					counts = []
 
 					for name in self.names:
+						'''						
 						img1 = misc.imread(name+".jpg","L").astype(np.uint8)
 					    
 						# find the keypoints and descriptors with SIFT - reference
 						kp1, des1 = self.surf.detectAndCompute(img1,None)
+						'''
+						des1 = self.desImages[name]
 
 						#record number of matches
 						matches = flann.match(des1,des2)
@@ -161,7 +171,7 @@ class blob_detector:
 					self.piccount += 1
 					#save file as special
 					cv2.imwrite("/home/racecar/challenge_photos/special"+self.piccount+".jpg",cropped)
-					'''
+					
 		#sort blobs
 		Arr.sort()
         	Arr = Arr[::-1]
@@ -192,5 +202,6 @@ class blob_detector:
 if __name__=="__main__":
 	rospy.init_node('blob_detector')
 	e = blob_detector()
-	sub_image = rospy.Subscriber("/camera/rgb/image_rect_color", Image, e.cbImage, queue_size=1)
+	#"/camera/rgb/image_rect_color"
+	sub_image = rospy.Subscriber("/EchoCompression/echo_image/compressed", Image, e.cbImage, queue_size=1)
 	rospy.spin()
