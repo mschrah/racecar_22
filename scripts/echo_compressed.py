@@ -25,7 +25,7 @@ import numpy as np
 class EchoCompression:
     def __init__(self):
         self.node_name = "EchoCompression"
-        sub_topic = rospy.get_param('~image')
+        sub_topic = rospy.get_param('/camera/rgb/image_rect_color')
         self.sub_image = rospy.Subscriber(sub_topic, Image,\
                 self.processImage, queue_size=1)
         self.pub_image_comp = rospy.Publisher("~echo_image/compressed",\
@@ -47,4 +47,4 @@ class EchoCompression:
 if __name__=="__main__":
     rospy.init_node('EchoCompression')
     e = EchoCompression()
-rospy.spin()
+    rospy.spin()
