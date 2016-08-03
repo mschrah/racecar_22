@@ -54,7 +54,7 @@ class blob_detector:
 		self.desImages = {}
 		for name in self.names:
 			#CHANGE LATER
-			img1 = misc.imread("/home/racecar/racecar-ws/src/racecar_22/scripts/"+name+".jpg","L").astype(np.uint8)
+			img1 = misc.imread("/home/racecar/racecar-ws/src/racecar/racecar_22/scripts/"+name+".jpg","L").astype(np.uint8)
 					    
 			# find the keypoints and descriptors with SIFT - reference
 			kp1, des1 = self.surf.detectAndCompute(img1,None)
