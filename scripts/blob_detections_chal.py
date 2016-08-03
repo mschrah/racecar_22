@@ -1,11 +1,11 @@
- #!/usr/bin/env python
+#!/usr/bin/env python
 	
 import cv2
 import rospy
 from racecar_22.msg import BlobDetections####need to make color field a STRING
 from std_msgs.msg import Float64, String
 from geometry_msgs.msg import Point
-from sensor_msgs.msg import Image	
+from sensor_msgs.msg import Image #CompressedImage	
 from cv_bridge import CvBridge, CvBridgeError
 import threading
 import numpy as np
@@ -16,9 +16,9 @@ colors = ["red", "green", "yellow", "blue", "pink"]
 #color bounds
 color_map = {"red": (np.array([0,120,100]), np.array([15,255,255])),\
 	"green": (np.array([35,100,200]), np.array([80,255,255])),\
-	"yellow": (np.array([20,150,150]), np.array([30,255,255])),\
-	"blue": (np.array([110,100,100]), np.array([130,255,255])),\
-	"pink": (np.array([146, 30, 75]), np.array ([165, 255, 255]))}
+	"yellow": (np.array([20,130,130]), np.array([30,255,255])),\
+	"blue": (np.array([110,150,100]), np.array([130,255,255])),\
+	"pink": (np.array([146, 75, 170]), np.array ([165, 255, 255]))}
 #red sat: 190
 # yellow (np.array([20,200,150]), np.array([30,255,255])),\
 #blue hue: (np.array([90,100,100]), np.array([150,255,255]))
@@ -38,16 +38,6 @@ class blob_detector:
 	
 		self.message = BlobDetections()
 
-		#reference pictures
-		self.names = ["ari", "cat", "professor karaman", "racecar"]
-		self.desImages = {}
-		for name in self.names:
-			img1 = misc.imread(name+".jpg","L").astype(np.uint8)
-					    
-			# find the keypoints and descriptors with SIFT - reference
-			kp1, des1 = self.surf.detectAndCompute(img1,None)
-			self.desImages[name] = des1
-
 		#Initiate SIFT detector
 		self.surf = cv2.ORB()
 
@@ -58,6 +48,17 @@ class blob_detector:
 
 		#picture count
 		self.piccount = 0
+
+		#reference pictures
+		self.names = ["ari", "cat", "professor karaman", "racecar"]
+		self.desImages = {}
+		for name in self.names:
+			#CHANGE LATER
+			img1 = misc.imread("/home/racecar/racecar-ws/src/racecar_22/scripts/"+name+".jpg","L").astype(np.uint8)
+					    
+			# find the keypoints and descriptors with SIFT - reference
+			kp1, des1 = self.surf.detectAndCompute(img1,None)
+			self.desImages[name] = des1
 
 	def cbImage(self,image_msg):
 		thread = threading.Thread(target=self.processImage,args=(image_msg,))
@@ -170,7 +171,7 @@ class blob_detector:
 					#counter for special images
 					self.piccount += 1
 					#save file as special
-					cv2.imwrite("/home/racecar/challenge_photos/special"+self.piccount+".jpg",cropped)
+					cv2.imwrite("/home/racecar/challenge_photos/special"+str(self.piccount)+".jpg",cropped)
 					
 		#sort blobs
 		Arr.sort()
@@ -186,10 +187,9 @@ class blob_detector:
 			cv2.drawContours(image_cv,BoxArr,0,(255,255,255),4)
 			colorname = self.message.colors[0].data
 			cv2.putText(image_cv, colorname, (100, 100), cv2.FONT_HERSHEY_PLAIN,10, (0,255,0))
-			
-	
         	try:
 			#publish
+			rospy.loginfo("Publishing")
         		self.pub_image.publish(self.bridge.cv2_to_imgmsg(image_cv, "bgr8"))
         		self.pub_msg.publish(self.message)
 			if len(self.message.colors) > 0:
@@ -203,5 +203,5 @@ if __name__=="__main__":
 	rospy.init_node('blob_detector')
 	e = blob_detector()
 	#"/camera/rgb/image_rect_color"
-	sub_image = rospy.Subscriber("/EchoCompression/echo_image/compressed", Image, e.cbImage, queue_size=1)
+	sub_image = rospy.Subscriber("/camera/rgb/image_rect_color", Image, e.cbImage, queue_size=1)
 	rospy.spin()
