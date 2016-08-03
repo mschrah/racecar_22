@@ -5,9 +5,7 @@
   <node name="safety_control" pkg="racecar_22" type="safety_control.py"/>
   <node name="screenshot" pkg="racecar_22" type="screenshot.py"/>
   <node name="blob_detections_chal" pkg="racecar_22" type="blob_detections_chal.py"/>
-  <node name="echo_compressed" pkg="racecar_22" type="echo_compressed.py"/>
+  <!-- <node name="echo_compressed" pkg="racecar_22" type="echo_compressed.py"/> -->
 
-  <include file="$(find racecar)/launch/teleop.launch"/>
-  <include file="$(find zed_wrapper)/launch/zed.launch"/>
   
 </launch>
