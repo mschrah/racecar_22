@@ -14,16 +14,16 @@ class ObstacleAvoider:
         
         #window dimensions
         self.midindex = 540
-        self.windowrange = 360
+        self.windowrange = 540
         self.leftindex = self.midindex - self.windowrange
         self.rightindex = self.midindex + self.windowrange
-	self.samplingsize = 10
+	self.samplingsize = 20
 	#averaged is 2*self.windowrange/self.samplingsize big
 
 	self.sampmid = int(self.windowrange/self.samplingsize)
     
         #pid values
-        self.P = .005#.1 #.0005 .0004
+        self.P = .05#.1 #.0005 .0004
         self.I = 0
         self.D = 0 #.00015
 	self.prev_times = collections.deque([time.clock() for _ in range(10)])
@@ -32,7 +32,7 @@ class ObstacleAvoider:
 
         #Ackermann message
         self.message = AckermannDriveStamped()
-        self.message.drive.speed = 2
+        self.message.drive.speed = 3
         self.message.header.stamp = rospy.Time.now()
         
         #self.condistance = 1.5#meters
@@ -58,6 +58,9 @@ class ObstacleAvoider:
        
         #find steering angle, left is +, right is -
 	error = ind - self.sampmid #carefully check mid value
+
+	rospy.loginfo("ind, error:%d, %f"%(ind, error))
+
 	prev_error = self.prev_errors.popleft()
         prev_time = self.prev_times.popleft()
         e_deriv = (error - prev_error) / (time.clock() - prev_time)

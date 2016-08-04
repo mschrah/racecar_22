@@ -13,11 +13,20 @@ import threading
 import numpy as np
 
 global colors, color_map
-colors = ["red", "green"]#, "yellow"]
+colors = ["green"]#["red", "green", "red2"]# 
+
+color_map = {"red": (np.array([0,160,90]), np.array([5,255,150])),\
+        "green": (np.array([40,150,100]), np.array([90,255,255])),\
+        "red2": (np.array([160,160,90]), np.array([180,255,255]))}
+'''
+color_map = {"red": (np.array([0,140,90]), np.array([15,190,150])),\
+        "green": (np.array([25,150,100]), np.array([90,255,255])),\
+        "red2": (np.array([150,140,90]), np.array([180,200,255]))}
+color_map = {"green": (np.array([30,100,140]), np.array([90,255,255]))}
 color_map = {"red": (np.array([0,190,100]), np.array([15,255,255])),\
         "green": (np.array([35,100,200]), np.array([80,255,255])),\
         "yellow": (np.array([20,200,150]), np.array([30,255,255]))}
-
+'''
 class blob_detector:
     def __init__(self):
         self.node_name = "blob_detector"
@@ -44,7 +53,7 @@ class blob_detector:
             return
         image_cv = self.bridge.imgmsg_to_cv2(image_msg)
         width, height, cha = image_cv.shape
-        lowthresarea = 500
+        lowthresarea = 5000#500
         
         # Convert BGR to HSV
         hsv = cv2.cvtColor(image_cv, cv2.COLOR_BGR2HSV)
@@ -54,7 +63,7 @@ class blob_detector:
         cent = Point()
         
         for c in colors:
-            
+            coname = c
             #Create mask
             (lower, upper) = color_map[c]
             mask = cv2.inRange(hsv, lower, upper)
@@ -70,8 +79,8 @@ class blob_detector:
                 
                 #angle = rect[2]
                 #if angle < -30 and angle > -60: continue#too angled
-                #p = max(w/h,h/w) 
-                #if p > 2: continue#the rectangle probably does not enclose the paper 
+                p = max(w/h,h/w) 
+                if p > 2.5: continue#2#the rectangle probably does not enclose the paper 
                 
                 center = rect[0]
                 (y,x) = center
@@ -79,22 +88,8 @@ class blob_detector:
                 cent.y = y/height
                 box = cv2.cv.BoxPoints(rect)
                 box = np.int0(box)
-                Arr.append((Float64(area),cent,String(c)))
+                Arr.append((Float64(area),cent,String(coname)))
                 BoxArr.append(box)#does not matter the order
-                '''
-                c_size = cv2.contourArea(i)
-                if c_size < 500: continue
-                x,y,w,h = cv2.boundingRect(i) #Draw a box around the contour
-                cv2.rectangle(image_cv, (x,y) , (x+w, y+h), (0,0,255),2)
-                centre = cv2.moments(i)
-    		blob_color = hsv[int(centre['m01'] / centre['m00']), int(centre['m10'] / centre['m00']), 0]
-    		if (blob_color < 12):
-                    self.pub_color.publish(True)
- 			print "The blob is red"
-    		  else:
- 			self.pub_color.publish(False)							
-                    print error
-                '''
 
         Arr.sort()
         Arr = Arr[::-1]
@@ -115,6 +110,7 @@ class blob_detector:
 
 if __name__=="__main__":
     rospy.init_node('blob_detector')
+    #rospy.sleep(20)
     e = blob_detector()
     rospy.spin()
 

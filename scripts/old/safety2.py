@@ -11,22 +11,27 @@ class safety():
 		self.reverse = AckermannDriveStamped()
 		self.reverse.header.stamp = rospy.Time.now()
 		self.reverse.drive.speed = -0.5
+		self.forward = AckermannDriveStamped()
+		self.forward.header.stamp = rospy.Time.now()
+		self.forward.drive.speed = 1
 		rospy.Subscriber("scan", LaserScan, self.scan_callback)
 		self.pub = rospy.Publisher("vesc/ackermann_cmd_mux/input/safety", AckermannDriveStamped, queue_size=0)
 
 	def scan_callback(self, msg):
-	    sample = msg.ranges[490:591]
-	    for i in range(10,90):
-	        if sample[i] < 0.75:
-        	    if abs(sum(sample[i+1:i+10])/10 - sum(sample[i-10:i])/10) < 0.1:
-			#set_reverse_angle(i)
+	    sample = msg.ranges[450:651]
+	    for i in range(len(sample)):
+	        if sample[i] < 0.6 and i<630:
+        	    if abs(sum(sample[i+1:i+20])/19 - sample[i]) < 0.1:
+			self.set_angles(i)
 			self.pub.publish(self.reverse)
 
-	def set_reverse_angle(index):
-		if index < 50:
+	def set_angles(self, degree):
+		if degree < 90:
 			self.reverse.drive.steering_angle = -0.5
+			self.forward.drive.steering_angle = 0.5
 		else:
 			self.reverse.drive.steering_angle = 0.5
+			self.forward.drive.steering_angle = -0.5
 
 
 if __name__ == "__main__":

@@ -4,6 +4,7 @@ import rospy
 from sensor_msgs.msg import LaserScan
 from ackermann_msgs.msg import AckermannDriveStamped
 from std_msgs.msg import Bool
+from std_msgs.msg import String
 import time, collections
 
 
@@ -11,23 +12,23 @@ class pid_controller():
     def __init__(self):
         self.driving = AckermannDriveStamped()
         self.driving.header.stamp = rospy.Time.now()
-        self.driving.drive.speed = 3
-        self.ddes = 1 #1.0 #1.55
+        self.driving.drive.speed = 1.2#10
+        self.ddes = .8
         self.prev_times = collections.deque([time.clock() for _ in range(10)])
         self.prev_errors = collections.deque([0 for _ in range(4)])
-        self.kp = .6 #.75--right  #.5--OG
-        self.ki = 0 #.1--right   # .05--OG
-        self.kd = .02 #.05  # .025--right   #.1--OG
-        self.mult =  1  # right
-        self.start_ind = 80  # right
-        self.end_ind = 280#500  # right
-        #self.side_sub = rospy.Subscriber("/racecar/JoyLRSelec", Bool, self.side_callback)
-        self.pid_pub = rospy.Publisher("vesc/ackermann_cmd_mux/input/navigation", AckermannDriveStamped, queue_size=1)
-        self.scan_sub = rospy.Subscriber("scan", LaserScan, self.pid_callback)
-	#rospy.Subscriber("blob_color", String, self.color_callback)
-	rospy.Subscriber("/wall", Bool, self.side_callback) 
-
+        self.kp = .5
+        self.ki = .1
+        self.kd = .05
+        self.mult = -1  # left
+        self.start_ind = 580  # left
+        self.end_ind = 1000  # left
+        self.pid_pub = rospy.Publisher("/vesc/ackermann_cmd_mux/input/navigation", AckermannDriveStamped, queue_size=1)
+	self.blob_sub = rospy.Subscriber("/blob_color", String, self.side_callback)
+        self.scan_sub = rospy.Subscriber("/scan", LaserScan, self.pid_callback)
+        self.runbool = False
+        
     def pid_callback(self, msg):
+        if self.runbool == False:return
         side = msg.ranges[self.start_ind:self.end_ind]
         dist = sum(side) / len(side)
         error = self.ddes - dist
@@ -37,25 +38,21 @@ class pid_controller():
             self.driving.drive.steering_angle = self.mult * self.pid(self.kp, self.kd, self.ki, error)
         self.pid_pub.publish(self.driving)
 
-    """def color_callback(self, msg):
-	if msg.data == "g": #left wall
-	    self.mult = -1
-	    self.start_ind = 800#580
-	    self.end_ind = 1000
-	else: # right wall
-	    self.mult = 1
-	    self.start_ind = 80
-	    self.end_ind = 280#500"""	
-
     def side_callback(self, msg):
-        if msg.data:  # left wall
-            self.mult = -1
-            self.start_ind = 800#580
-            self.end_ind = 1000
-        else:  # right wall
+        if blob_sub == "r":  # left wall
+            self.runbool = True
             self.mult = 1
+            #define the side
+            self.start_ind = 580
+            self.end_ind = 1000
+        elif blob_sub == "g":  # right wall
+            self.runbool = True
+            self.mult = -1
+            #define the side
             self.start_ind = 80
-            self.end_ind = 280#500
+            self.end_ind = 500
+	else:
+	    return
 
     def pid(self, kp, kd, ki, error):
         prev_error = self.prev_errors.popleft()

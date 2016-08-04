@@ -12,12 +12,12 @@ class pid_controller():
         self.driving = AckermannDriveStamped()
         self.driving.header.stamp = rospy.Time.now()
         self.driving.drive.speed = 3
-        self.ddes = 1 #1.0 #1.55
+        self.ddes = .75 #1.0 #1.55
         self.prev_times = collections.deque([time.clock() for _ in range(10)])
         self.prev_errors = collections.deque([0 for _ in range(4)])
-        self.kp = .6 #.75--right  #.5--OG
+        self.kp = 1.5 #.75--right  #.5--OG
         self.ki = 0 #.1--right   # .05--OG
-        self.kd = .02 #.05  # .025--right   #.1--OG
+        self.kd = .05 #.05  # .025--right   #.1--OG
         self.mult =  1  # right
         self.start_ind = 80  # right
         self.end_ind = 280#500  # right

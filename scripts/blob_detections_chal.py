@@ -12,13 +12,21 @@ import numpy as np
 from scipy import misc
 	
 global colors, color_map
-colors = ["red", "green", "yellow", "blue", "pink"]
+colors = ["red", "red2", "green", "yellow", "blue", "pink"]
 #color bounds
+color_map = {"red": (np.array([0,160,90]), np.array([5,255,150])),\
+        "green": (np.array([40,150,100]), np.array([90,255,255])),\
+        "red2": (np.array([160,160,90]), np.array([180,255,255])),\
+	"yellow": (np.array([20,130,130]), np.array([30,255,255])),\
+	"blue": (np.array([110,150,100]), np.array([130,255,255])),\
+	"pink": (np.array([140, 130, 100]), np.array ([180, 255, 255]))}
+'''
 color_map = {"red": (np.array([0,120,100]), np.array([15,255,255])),\
 	"green": (np.array([35,100,200]), np.array([80,255,255])),\
 	"yellow": (np.array([20,130,130]), np.array([30,255,255])),\
 	"blue": (np.array([110,150,100]), np.array([130,255,255])),\
 	"pink": (np.array([146, 75, 170]), np.array ([165, 255, 255]))}
+'''
 #red sat: 190
 # yellow (np.array([20,200,150]), np.array([30,255,255])),\
 #blue hue: (np.array([90,100,100]), np.array([150,255,255]))
@@ -118,6 +126,7 @@ class blob_detector:
 				BoxArr.append(box)#order does not matter
 				
 				if c == "pink":#send image to the correct place
+					if area < 20000: continue
 					#cropping picture
 					corn1 = box[0]
 					corn2 = box[2]
@@ -165,13 +174,15 @@ class blob_detector:
 					    
 					#get picture name of the ind
 					chosen = self.names[ind]
-
+					
+					spec = image_cv.copy()
 					#put string on image
-					cv2.putText(cropped, chosen, (int(heightc/2), int(width/2)), cv2.FONT_HERSHEY_PLAIN, 4, (0,255,0))
+					cv2.putText(spec, chosen, (100, 100), cv2.FONT_HERSHEY_PLAIN, 2, (0,255,0))
+					cv2.drawContours(spec,[co],0,(255,255,255),4)
 					#counter for special images
 					self.piccount += 1
 					#save file as special
-					cv2.imwrite("/home/racecar/challenge_photos/special"+str(self.piccount)+".jpg",cropped)
+					cv2.imwrite("/home/racecar/challenge_photos/special"+str(self.piccount)+".jpg",spec)
 					
 		#sort blobs
 		Arr.sort()

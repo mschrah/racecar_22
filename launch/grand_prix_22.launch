@@ -1,8 +1,9 @@
 <!-- -*- mode: XML -*- -->
 <launch>
   <node name="wall_follower" pkg="racecar_22" type="wall_follower.py"/>
-  <!--<node name="wall_decider" pkg="racecar_22" type="wall_decider.py"/>
-  <node name="blob_detections_turn" pkg="racecar_22" type="blob_detections_turn.py"/>-->
+  <node name="wall_decider" pkg="racecar_22" type="wall_decider.py"/>
+  <node name="blob_detections_turn" pkg="racecar_22" type="blob_detections_turn.py"/>
+  <node name="safety2" pkg="racecar_22" type="safety2.py"/>
 
   <include file="$(find racecar)/launch/teleop.launch"/>
   <include file="$(find zed_wrapper)/launch/zed.launch"/>

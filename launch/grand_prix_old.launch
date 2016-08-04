@@ -1,6 +1,6 @@
 <!-- -*- mode: XML -*- -->
 <launch>
-  <node name="free_space" pkg="racecar_22" type="freespace.py"/>
+  <node name="potential_has_potential" pkg="racecar_22" type="potential_has_potential.py"/>
 
   <include file="$(find racecar)/launch/teleop.launch"/>
 </launch>

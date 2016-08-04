@@ -1,6 +1,5 @@
 #!/usr/bin/env python
-#definitely safety
-"""
+
 import rospy
 from sensor_msgs.msg import LaserScan
 from ackermann_msgs.msg import AckermannDriveStamped
@@ -22,4 +21,3 @@ safety_pub = rospy.Publisher("vesc/ackermann_cmd_mux/input/safety", AckermannDri
 scan_sub = rospy.Subscriber("scan", LaserScan, scan_callback)
 
 rospy.spin()
-"""

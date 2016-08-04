@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 import rospy
 from sensor_msgs.msg import LaserScan
 from ackermann_msgs.msg import AckermannDriveStamped
@@ -6,7 +5,7 @@ from ackermann_msgs.msg import AckermannDriveStamped
 import numpy as np
 import math
 
-class Potential:
+class Safepot:
 	def __init__(self):
 		#CONSTANTS
 		self.charge = .1#0.0007
@@ -47,7 +46,7 @@ class Potential:
 		#self.message.drive.acceleration = 1#set
 
 		#pub
-		self.pub = rospy.Publisher("/vesc/ackermann_cmd_mux/input/navigation", AckermannDriveStamped, queue_size = 1)
+		self.pub = rospy.Publisher("/racecar/ackermann_cmd_mux/input/navigation", AckermannDriveStamped, queue_size = 1)
 
 		#previous vals
 		self.prev_speed = 0
@@ -94,19 +93,12 @@ class Potential:
 		#message publish
 		self.pub.publish(self.message)
 
-		#sleep so the teleop works
-		rospy.sleep(.06)
 
 def main():
-	rospy.init_node("Potential")
-	po = Potential()
-	rospy.Subscriber("/scan", LaserScan, po.laser_callback)
+	rospy.init_node("Safepot")
+	sp = Safepot()
+	rospy.Subscriber("/scan", LaserScan, sp.laser_callback)
 	rospy.spin()
 
 if __name__ == "__main__":
 	main()
-		
-
-
-
-
