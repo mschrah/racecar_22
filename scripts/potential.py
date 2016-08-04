@@ -94,6 +94,8 @@ class Potential:
 		#message publish
 		self.pub.publish(self.message)
 
+		#sleep so the teleop works
+		rospy.sleep(.06)
 
 def main():
 	rospy.init_node("Potential")

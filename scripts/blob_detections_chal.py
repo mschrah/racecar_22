@@ -205,3 +205,4 @@ if __name__=="__main__":
 	#"/camera/rgb/image_rect_color"
 	sub_image = rospy.Subscriber("/camera/rgb/image_rect_color", Image, e.cbImage, queue_size=1)
 	rospy.spin()
+
