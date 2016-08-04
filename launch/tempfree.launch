@@ -1,0 +1,6 @@
+<!-- -*- mode: XML -*- -->
+<launch>
+  <node name="free_space" pkg="racecar_22" type="freespace.py"/>
+
+  <include file="$(find racecar)/launch/teleop.launch"/>
+</launch>
